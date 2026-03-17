@@ -5,8 +5,8 @@ import { Howl } from 'howler'
 
 const playlist = [
   { 
-    title: 'Chac em da quen roi', 
-    artist: 'Quang Cho Lam', 
+    title: 'Chắc Em Đã Quên Rồi', 
+    artist: 'Quang Chợ Lầm', 
     cover: '/music/covers/mixi.png', 
     src: '/music/chac em da quen roi.mp3' 
   }

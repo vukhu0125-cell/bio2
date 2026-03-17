@@ -26,12 +26,14 @@ export default function ProjectsCard() {
 
     const scrollContainer = scrollRef.current
     let animationFrameId
+    const isMobile = window.innerWidth < 768 // Kiểm tra mobile
+    const scrollSpeed = isMobile ? 0.3 : 0.5 // Giảm tốc độ trên mobile
 
     const scroll = () => {
       if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
         scrollContainer.scrollLeft = 0
       } else {
-        scrollContainer.scrollLeft += 0.5
+        scrollContainer.scrollLeft += scrollSpeed
       }
       animationFrameId = requestAnimationFrame(scroll)
     }
@@ -67,6 +69,8 @@ export default function ProjectsCard() {
         className="flex-1 relative -mx-5"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setIsPaused(false)}
       >
         <div 
           ref={scrollRef}

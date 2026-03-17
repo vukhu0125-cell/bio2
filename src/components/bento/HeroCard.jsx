@@ -104,10 +104,10 @@ export default function HeroCard() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              ItsMeemo123
+              Vũ Đình Khu
             </motion.h1>
             <p className="text-zinc-400 mt-2">
-              Developer, AI Engineer GPT
+              Developer, Desgin
             </p>
             <div className="flex items-center gap-2 mt-2 text-sm text-zinc-500">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
