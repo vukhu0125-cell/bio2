@@ -9,6 +9,19 @@ export default function ProjectsCard() {
   const [loading, setLoading] = useState(true)
   const scrollRef = useRef(null)
   const [isPaused, setIsPaused] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Kiểm tra thiết bị mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const loadProjects = async () => {
@@ -26,8 +39,7 @@ export default function ProjectsCard() {
 
     const scrollContainer = scrollRef.current
     let animationFrameId
-    const isMobile = window.innerWidth < 768 // Kiểm tra mobile
-    const scrollSpeed = isMobile ? 0.3 : 0.5 // Giảm tốc độ trên mobile
+    const scrollSpeed = isMobile ? 0.5 : 0.5 // Giữ tốc độ như nhau, nhưng có thể điều chỉnh
 
     const scroll = () => {
       if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
@@ -47,7 +59,28 @@ export default function ProjectsCard() {
       clearTimeout(timeoutId)
       if (animationFrameId) cancelAnimationFrame(animationFrameId)
     }
-  }, [loading, isPaused, projects.length])
+  }, [loading, isPaused, projects.length, isMobile])
+
+  // Xử lý touch events tốt hơn cho mobile
+  const handleTouchStart = () => {
+    setIsPaused(true)
+  }
+
+  const handleTouchEnd = (e) => {
+    // Kiểm tra nếu không phải là scroll gesture
+    if (!e.target.closest('.scrollbar-hide')) {
+      setIsPaused(false)
+    }
+  }
+
+  const handleTouchMove = () => {
+    // Nếu user đang scroll, tạm dừng auto-scroll
+    setIsPaused(true)
+  }
+
+  const handleTouchCancel = () => {
+    setIsPaused(false)
+  }
 
   if (loading) {
     return (
@@ -63,23 +96,35 @@ export default function ProjectsCard() {
       <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       <div className="relative z-10 flex flex-col h-full">
-      <h2 className="text-lg font-semibold text-white mb-4 flex-shrink-0">Featured Projects</h2>
+        <h2 className="text-lg font-semibold text-white mb-4 flex-shrink-0">Featured Projects</h2>
 
-      <div 
-        className="flex-1 relative -mx-5"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onTouchStart={() => setIsPaused(true)}
-        onTouchEnd={() => setIsPaused(false)}
-      >
         <div 
-          ref={scrollRef}
-          className="flex gap-2 overflow-x-auto overflow-y-hidden h-full scrollbar-hide items-center px-5"
+          className="flex-1 relative -mx-5"
+          onMouseEnter={() => !isMobile && setIsPaused(true)}
+          onMouseLeave={() => !isMobile && setIsPaused(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchMove={handleTouchMove}
+          onTouchCancel={handleTouchCancel}
         >
-          {[...projects, ...projects].map((project, i) => (
-            <ProjectCard key={i} project={project} />
-          ))}
+          <div 
+            ref={scrollRef}
+            className="flex gap-2 overflow-x-auto overflow-y-hidden h-full scrollbar-hide items-center px-5"
+          >
+            {[...projects, ...projects].map((project, i) => (
+              <ProjectCard key={i} project={project} />
+            ))}
+          </div>
         </div>
+
+        {/* Hiển thị indicator cho mobile */}
+        {isMobile && (
+          <div className="flex justify-center mt-3 gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600" />
+          </div>
+        )}
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
@@ -91,7 +136,6 @@ export default function ProjectsCard() {
           scrollbar-width: none;
         }
       `}} />
-      </div>
     </div>
   )
 }
@@ -107,6 +151,7 @@ function ProjectCard({ project }) {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.98 }} // Thêm hiệu ứng khi tap trên mobile
     >
       {/* Logo */}
       <div className="mb-3 flex items-center justify-between">
